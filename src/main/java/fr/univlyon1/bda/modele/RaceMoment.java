@@ -1,14 +1,29 @@
 package fr.univlyon1.bda.modele;
 
 
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import java.util.Collection;
+
+@Entity
 public class RaceMoment {
+
+    @Id
+    private int top;
 
     private float quality;
     private float temperature;
-    private Tortoise[] tortoises;
+
+    @OneToMany
+    private Collection<Tortoise> tortoises;
 
 
-    public RaceMoment(float quality, float temperature, Tortoise[] tortoises) {
+    public RaceMoment() {
+    }
+
+    public RaceMoment(float quality, float temperature, Collection<Tortoise> tortoises) {
         this.quality = quality;
         this.temperature = temperature;
         this.tortoises = tortoises;
@@ -17,18 +32,18 @@ public class RaceMoment {
     public void print() {
         int i = 0;
         String str = "";
-        while(i < tortoises.length || i < 10) {
-            str += "        { \"id\": "+tortoises[i].getId()+", \"top\": "+tortoises[i].getTop()+", \"position\": "+tortoises[i].getPosition()+" },\n";
+        while (i < tortoises.size() || i < 10) {
+            // str += "        { \"id\": " + tortoises.(i).getId() + ", \"top\": " + tortoises[i].getTop() + ", \"position\": " + tortoises[i].getPosition() + " },\n";
             i++;
         }
         System.out.println("\n" +
-                 "{\n" +
-                 "    tortoises : [\n" +
-                 str +
-                 "    ]," +
-                 "    qualite : " + quality + "\n" +
-                 "    temperature : " + temperature + "\n" +
-                 "}");
+                "{\n" +
+                "    tortoises : [\n" +
+                str +
+                "    ]," +
+                "    qualite : " + quality + "\n" +
+                "    temperature : " + temperature + "\n" +
+                "}");
     }
 
     public float getQuality() {
@@ -47,11 +62,11 @@ public class RaceMoment {
         this.temperature = temperature;
     }
 
-    public Tortoise[] getTortoises() {
+    public Collection<Tortoise> getTortoises() {
         return tortoises;
     }
 
-    public void setTortoises(Tortoise[] tortoises) {
+    public void setTortoises(Collection<Tortoise> tortoises) {
         this.tortoises = tortoises;
     }
 }

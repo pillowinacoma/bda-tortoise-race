@@ -1,11 +1,17 @@
 package fr.univlyon1.bda.modele;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
+@Entity
 public class Tortoise {
 
+    @Id
     private int id;
     private int top;
     private int position;
 
+    public Tortoise() {}
     public Tortoise(int id, int top, int position) {
         this.id = id;
         this.top = top;
