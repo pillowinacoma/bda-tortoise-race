@@ -2,18 +2,27 @@ package fr.univlyon1.bda;
 
 import fr.univlyon1.bda.modele.Tortoise;
 import fr.univlyon1.bda.repositories.TortoiseRepository;
-import fr.univlyon1.bda.services.TortoiseService;
 import org.json.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 
 import java.io.*;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.util.stream.Stream;
 
 @SpringBootApplication
-public class App {
+  public class App {
+
+    @Value("${spring.datasource.url}")
+    String url;
+    @Value("${spring.datasource.username}")
+    String user;
+    @Value("${spring.datasource.password}")
+    String password;
 
     public static String readAll(Reader rd) throws IOException {
         StringBuilder sb = new StringBuilder();
@@ -37,10 +46,32 @@ public class App {
     }
     public static void main(String[] args) throws IOException {
 
-        TortoiseService ts = new TortoiseService();
-        ts.createTortoise(new Tortoise(0,695400,000005454));
+            SpringApplication.run(App.class, args);
 
-        JSONObject jso = getData("http://192.168.77.94/race/large");
-        System.out.println(jso.getJSONArray("tortoises").toString());
+//        JSONObject jso = getData("http://192.168.77.94/race/large");
+//        System.out.println(jso.getJSONArray("tortoises").toString());
     }
+
+    @Bean
+    ApplicationRunner init(TortoiseRepository tr) {
+
+        String[][] data = {
+                {"0", "73", "123"},
+                {"1", "73", "100"},
+                {"2", "73", "151"}
+        };
+
+        return args -> {
+            Stream.of(data).forEach(array -> {
+                Tortoise tortoise = new Tortoise(
+                        Integer.parseInt(array[0]),
+                        Integer.parseInt(array[1]),
+                        Integer.parseInt(array[3])
+                );
+                tr.save(tortoise);
+            });
+            tr.findAll().forEach(System.out::println);
+        };
+    }
+
 }
