@@ -8,13 +8,12 @@ from utils import isCyclique, isFatiguee, isRegulier
 
 DATA_DIR = "./data0"
 TYPE = "tiny"
-TORTOISE_ID = '6'
 
 prev = {'position': -1, 'top': -1}
-result = {'vitesses': []}
 
 
 def analyseFile(fileName):
+    result = {'vitesses': []}
     with open(fileName, newline='') as csv_file:
         reader = csv.DictReader(csv_file)
         for row in reader:
@@ -24,7 +23,7 @@ def analyseFile(fileName):
             # if stats['delta'] > 1 : print(stats)
 
             if prev['position'] != -1:
-                stats['vitesse'] = int(row['position']) - prev['position']
+                stats['vitesse'] = int(row['vitesse'])
 
             if('temperature' not in result):
                 result['temperature'] = stats['temperature']
@@ -41,18 +40,34 @@ def analyseFile(fileName):
 
             prev['position'] = int(row['position'])
             prev['top'] = int(row['top'])
-        # print(result)
-        print("Cyclique", isCyclique(result['vitesses'][1:]))
-        print("Regulier",isRegulier(result['vitesses'][1:]))
-        print("Fatigué",isFatiguee(result['vitesses'][1:]))
+        cyclique = isCyclique(result['vitesses'][1:])
+        regulier = isRegulier(result['vitesses'][1:])
+        fatigue = isFatiguee(result['vitesses'][1:])
+        trueList = [cyclique['cyclique'],
+                    regulier['regulier'], fatigue['fatigue']]
+        if trueList.count(True) != 1:
+            # print(result)
+            # print("Cyclique", cyclique)
+            # print("Regulier", regulier)
+            # print("Fatigué", fatigue)
+            return {
+                'isGood': False
+            }
+        result = [cyclique, regulier, fatigue][trueList.index(True)]
+        return {
+            'isGood': True,
+            'result': result,
+        }
 
 
-os.chdir(f"{DATA_DIR}/{TYPE}/{TORTOISE_ID}")
+os.chdir(f"{DATA_DIR}/{TYPE}")
 
 prev = {'position': -1, 'top': -1}
 
-for counter, file in enumerate(sorted(glob.glob("*"))):
-    if counter < 10:
-        analyseFile(file)
-    else:
-        break
+for dirCounter, dir in enumerate(sorted(glob.glob("*"), key=lambda a: int(a.split("-")[0]))):
+    for fileCounter, file in enumerate(sorted(glob.glob(f"{dir}/*"), key=lambda a: int(a.split("/")[1].split("-")[0]))):
+        # if dirCounter < 10:
+        print('________________', file)
+        fileAnalyse = analyseFile(file)
+        if fileAnalyse['isGood'] : print(fileAnalyse)
+        # break

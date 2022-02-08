@@ -7,7 +7,7 @@ def isCyclique(speeds=[]):
             index_cycle = -1
         if index_cycle > 1:
             cycle = speeds[0:index_cycle]
-            if 0 in cycle: 
+            if 0 in cycle:
                 return {
                     'cyclique': False
                 }
@@ -47,7 +47,8 @@ def isFatiguee(speeds=[]):
                 'fatigue': False
             }
         try:
-            second_zero_index = first_zero_index + speeds[first_zero_index + 1:].index(0) + 1
+            second_zero_index = first_zero_index + \
+                speeds[first_zero_index + 1:].index(0) + 1
         except:
             return {
                 'fatigue': False
@@ -55,7 +56,12 @@ def isFatiguee(speeds=[]):
         cycle = speeds[first_zero_index:second_zero_index + 1]
         max_speed = max(cycle)
         rythme = max_speed - cycle[cycle.index(max_speed) + 1]
+        if rythme == 0:
+            return {
+                'fatigue': False
+            }
         return {
+            'fatigue': True,
             'vitesse_initiale': max_speed,
             'rythme': rythme,
         }
