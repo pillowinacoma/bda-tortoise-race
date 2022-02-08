@@ -25,7 +25,7 @@ data_size = {"tiny": 10,
 
 
 def getData(type='tiny', targetDir='./data', fileSize=1000):
-    lastTop = 0
+    lastTop = -1
     data[type] = {}
 
     for i in range(data_size[type]):
@@ -33,29 +33,32 @@ def getData(type='tiny', targetDir='./data', fileSize=1000):
 
     while(True):
         time.sleep(2)
-        try : 
+        try:
             request = requests.get(
                 f'http://tortues.ecoquery.os.univ-lyon1.fr/race/{type}')
-        except requests.Timeout as err : 
+        except requests.Timeout as err:
             logger.error({"message : ": err.response})
             continue
-        except requests.ConnectionError as err : 
-            logger.error({"message : " : err.response})
+        except requests.ConnectionError as err:
+            logger.error({"message : ": err.response})
             continue
-        rawData = request.json()
 
         if(request.status_code != 200):
             print(f"REQUEST : {type}\t{request.status_code} ")
             continue
+        rawData = request.json()
         if rawData['tortoises'][0]['top'] == lastTop:
             continue
-
 
         qualite = rawData['qualite']
         temperature = rawData['temperature']
 
         tortoises = list(map(lambda x: addQualiTemp(
-            x, qualite, temperature, speed=x['position'] - data[type][x['id']][lastTop]['position'] if lastTop != 0 else 0), rawData['tortoises']))
+            x,
+            qualite,
+            temperature,
+            speed=x['position'] - data[type][x['id']][lastTop]['position'] if lastTop != 0 and lastTop == int(x['top']) - 1 else -1),
+            rawData['tortoises']))
 
         lastTop = tortoises[0]['top']
         for tortoise in tortoises:
