@@ -1,7 +1,6 @@
 package fr.univlyon1.bda.modele;
 
 
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;

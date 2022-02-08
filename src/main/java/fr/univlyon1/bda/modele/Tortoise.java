@@ -1,14 +1,18 @@
 package fr.univlyon1.bda.modele;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
+@Table(name = "tortoises")
 public class Tortoise {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
+
+    @Column(name = "top")
     private int top;
+    @Column(name = "position")
     private int position;
 
     public Tortoise() {}
