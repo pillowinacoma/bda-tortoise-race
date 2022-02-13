@@ -21,7 +21,7 @@ def main(course, id, top, position, temp, quali, deltatop):
         if len(modele) == 1 :
             turtle_type = list(modele.keys())[0]
             params = modele[turtle_type][0]['params']
-            predictFatigue(position, deltatop, params[1], params[2])
+            if turtle_type == 'fatigue' : predictFatigue(position, deltatop, params[1], params[2])
 
 
 
