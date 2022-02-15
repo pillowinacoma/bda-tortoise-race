@@ -53,23 +53,23 @@ def isSameCycle(cycle1, cycle2):
     return cycle1 == tc2
 
 
-def test(speeds):
-    temp = 0.0
-    quali = 0.0
-    regulier = isRegulier(speeds)
-    cyclique = isCyclique(speeds)
-    fatigue = isFatiguee(speeds)
+# def test(speeds):
+#     temp = 0.0
+#     quali = 0.0
+#     regulier = isRegulier(speeds)
+#     cyclique = isCyclique(speeds)
+#     fatigue = isFatiguee(speeds)
 
-    res = (temp, quali, {'isGood': False})
+#     res = (temp, quali, {'isGood': False})
 
-    if regulier['regulier']:
-        return (temp, quali, {'result': regulier, 'isGood': True})
-    if cyclique['cyclique']:
-        return (temp, quali, {'result': cyclique, 'isGood': True})
-    if fatigue['fatigue']:
-        return (temp, quali, {'result': fatigue, 'isGood': True})
-    return (temp, quali, {'isGood': False})
+#     if regulier['regulier']:
+#         return (temp, quali, {'result': regulier, 'isGood': True})
+#     if cyclique['cyclique']:
+#         return (temp, quali, {'result': cyclique, 'isGood': True})
+#     if fatigue['fatigue']:
+#         return (temp, quali, {'result': fatigue, 'isGood': True})
+#     return (temp, quali, {'isGood': False})
 
 
-if __name__ == "__main__":
-    print(test([3, 2, 1, 0, 1, 2, 3, 2, 1, 0]))
+# if __name__ == "__main__":
+#     print(test([3, 2, 1, 0, 1, 2, 3, 2, 1, 0]))

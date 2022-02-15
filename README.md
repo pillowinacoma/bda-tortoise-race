@@ -11,9 +11,45 @@ Les programmes de récupération des données et d'analyse sont sur le compte d'
 
 > `ssh -i cle.ssh p1807434@192.168.76.161`
 
+dans le repertoire `TP`
+
 ### Comment utiliser nos prgrammes
 
-- TODO liste des commandes
+- après la connection à la VM ci dessus, pous pouvez lancer les differentes programmes :
+  - Récuperation des données :
+
+    ```bash
+        python3 recuperation.py $course $target_dir $single_file_size
+    ```
+    cette commande lancera la recuperation des données de la course $course (tiny, small, medium et large) depuis le server, ces données seront stoqués dans un repertoir $target_dir dans des fichiers de la taille $single_file_size, les fichiers sont nommés selon le premier et le dernier top contenus dedans, les données seront stockés sous la structure suivante : 
+    ```bash
+    $target_dir
+    |   tiny
+    |   |   0
+    |   |   |   785398-786398.csv
+    |   |   |   786398-787398.csv
+    |   |   |   ...
+    |   |   1
+    |   |   ...
+    |   small
+    |   ...
+    ...
+    
+    ```
+- Analise de données: 
+    ```bash
+    chmod 700 analyse.sh && ./analyse.sh
+    ```
+    cette commande lancera le script d'analyse des données, par defaut, ce script recupère les données du repertoir `data3` (hdfs), et génére un modèle dans le repertoir `results`, ce modèle sera parcouru par le script de prédiction
+- Prédiction:
+    ```bash
+    chmod 700 prediction.sh && ./prediction.sh $course, $id, $top, $pos1, $pos2, $pos3, $temp, $quali, $deltatop
+    ```
+    en sortie vous aurez la position de la tortue à la position `$pos1 + $deltatop`
+
+
+
+
 
 ## Récupération des données
 
@@ -21,7 +57,7 @@ Pour la récuperation de données nous utilisons un programme Python avec la lib
 
 ### Script de récupération
 
-La script Python [recuperation3.py](./recuperation3.py) va requêter le serveur toutes les 2 secondes pour éviter de manquer des _tops_ et va ignorer les doublons. Si la nouvelle donnée sur la course possède le même _top_ que la dernière enregistrée, alors elle est ignoré.
+La script Python [recuperation.py](./recuperation.py) va requêter le serveur toutes les 2 secondes pour éviter de manquer des _tops_ et va ignorer les doublons. Si la nouvelle donnée sur la course possède le même _top_ que la dernière enregistrée, alors elle est ignoré.
 
 La fonction **getData** de notre script de récupération de données prend 3 paramètres :
 
@@ -89,7 +125,7 @@ Pour cela nous allons copier nos données sur un cluster HDFS toutes les 12h. No
 
 ## Analyse des données
 
-Le script [analyse2.py](analyse2.py) parcours les données récupérées pour chaque tortue, on agrège par température et qualité, puis on trasforme les données à ce format
+Le script [analyse.py](analyse.py) parcours les données récupérées pour chaque tortue, on agrège par température et qualité, puis on trasforme les données à ce format
 
 ```json
 
@@ -121,7 +157,14 @@ Le script [analyse2.py](analyse2.py) parcours les données récupérées pour ch
         }
     ]
 ```
+
 Une tortue lunatique aura de ce fait, plusieurs comportements à la suite.
 Pour lancer l'analyse pour toutes les courses, il suffit de lancer le script Shell analyse.sh, qui lancera l'analyse pour tout les courses, en generant le modèle ci dessus.
 
 ## Prédiction
+
+Pour les tortues avec un seul comportement, on déduit directement à partir des données du fichier modèle la position dans _deltatop_ top. Pour une tortue avec plusieurs comportements (lunatiques), on calcule la distance minimale entre la temperature et la qualité de celle ci, et les temperatures et qualités obsérvées pendant les comportements enregistré dans le fichier modèle. Le comportement lié à cette distance minimale sera celui utilisé pour la prédiction.
+
+
+
+

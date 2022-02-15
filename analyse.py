@@ -1,17 +1,70 @@
 import json
 import operator
-from os import listdir, curdir, truncate
-from os import path
+from os import listdir
+from os import path, makedirs
 from pathlib import Path
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import struct, collect_list, udf
-from utils import isCyclique, isFatiguee, isRegulier, isSameCycle
+from pyspark.sql.functions import collect_list
+import sys
 
 compte = "p1807434"
-# input_file = "hdfs:///user/" + compte + "/data3/tiny/0"
 data_dir = "data3"
-type_dir = "small"
+# type_dir = "small"
 result_file_name = "result.json"
+
+def isCyclique(speeds=[]):
+    if(len(speeds) > 1):
+        first = speeds[0]
+        try:
+            index_cycle = speeds[1:].index(first) + 1
+        except:
+            index_cycle = -1
+        if index_cycle > 1:
+            cycle = speeds[0:index_cycle]
+            if 0 in cycle:
+                return ('non cyclique')
+            return ('cyclique', cycle, len(cycle))
+    return ('non cyclique')
+
+
+def isRegulier(speeds=[]):
+    if(len(speeds) > 1):
+        first = speeds[0]
+        for speed in speeds[1:2]:
+            if speed == 0 or speed != first:
+                return ('non regulier')
+        return ('regulier', first)
+    return ('non regulier')
+
+
+def isFatiguee(speeds=[]):
+    if(len(speeds) > 1):
+        try:
+            first_zero_index = speeds.index(0)
+        except:
+            return ('non fatigue')
+        try:
+            second_zero_index = first_zero_index + \
+                speeds[first_zero_index + 1:].index(0) + 1
+        except:
+            return ('non fatigue')
+        cycle = speeds[first_zero_index:second_zero_index + 1]
+        max_speed = max(cycle)
+        rythme = max_speed - cycle[cycle.index(max_speed) + 1]
+        if rythme == 0:
+            ('non fatigue')
+        return ('fatigue', max_speed, rythme)
+
+    return ('non fatigue')
+
+def isSameCycle(cycle1, cycle2):
+    fc1 = cycle1[0]
+    try:
+        lc2 = cycle2.index(fc1)
+    except:
+        return False
+    tc2 = cycle2[lc2:] + cycle2[:lc2]
+    return cycle1 == tc2
 
 
 def sorter(l):
@@ -37,15 +90,13 @@ def analyseVitesse(entry):
     return (id, temp, quali, ('non definie', ''))
 
 
-def mapTortue(tortuePath, ss):
+def mapTortue(tortuePath, ss, source, target, type):
     df = ss.read.options(header=True, inferSchema=True, delimiter=',').csv(
         tortuePath).select("*").distinct().sort("top")
     grouped_df = df.groupBy("id", "temperature", "qualite")\
         .agg(
         collect_list("vitesse").alias("vitesses")
     )
-
-    print("##-"+tortuePath+"-##############################################################################################################")
 
     def tempQualiSpeedsReducer(acc, curr):
         if(list(curr.keys())[0] == 'cyclique'):
@@ -91,7 +142,6 @@ def mapTortue(tortuePath, ss):
 
         return acc
 
-    # grouped_df.rdd.map(analyseVitesse).map(lambda x: {'type': x[3][0], 'params': x[3], 'temp': x[1], 'quali': x[2]}).foreach(print)
     envByTypeDict = grouped_df\
         .rdd\
         .map(analyseVitesse)\
@@ -100,32 +150,27 @@ def mapTortue(tortuePath, ss):
         .reduce(tempQualiSpeedsReducer)
 
     tortueId = tortuePath.split("/")[-1]
-    # Path(f"./results/{tortueId}.json").touch(exist_ok=True)
-    with open("results/"+type_dir+"/"+tortueId+".json", "w") as outfile:
+
+
+    with open("./"+target+"/"+type+"/"+tortueId+".json", "w") as outfile:
         json.dump(envByTypeDict, outfile, indent=4)
 
-    # grouped_df.rdd\
-    #        .map(analyseVitesse)\
-    #        .map(lambda x: {x[3][0]: [{'params': x[3], 'env': [{'temp': x[1], 'quali': x[2]}]}]})\
-    #        .foreach(pprint)
 
-
-# Main process
-
-
-def main():
+def main(source, target, type):
     # sc = pyspark.SparkContext(appName="Tp-tortues-" + compte)
-    Path("./results/"+type_dir+"").mkdir(parents=True, exist_ok=True)
+    # target_dir = "hdfs:///user/"+compte+"/"+target+"/"+type+""
+    target_dir = "./"+target+"/"+type+""
+    if not path.exists(target_dir):
+        makedirs(target_dir)
     ss = SparkSession.builder.appName("Tp-tortues-" + compte).getOrCreate()
-    input_file = data_dir+"/"+{type_dir}+"/"
+    # input_file = "hdfs:///user/"+compte+"/"+source+"/"+type
+    input_file = "./"+source+"/"+type
     # df = ss.read.options(header=True, inferSchema=True, delimiter=',').csv(input_file)
 
     print("##-1-##############################################################################################################")
-    turtles = list(map(lambda x: path.join(
-        input_file, x), listdir(input_file)))
-    print(turtles)
+    turtles = list(map(lambda x: path.join(input_file, x), listdir(input_file)))
     for tPath in turtles:
-        mapTortue(tPath, ss)
+        mapTortue(tPath, ss, source, target, type)
     # df.printSchema()
     # df.show()
     # df['vitesse'].tolist()
@@ -134,4 +179,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1],sys.argv[2], sys.argv[3])
