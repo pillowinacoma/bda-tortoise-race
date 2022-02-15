@@ -13,6 +13,8 @@ Les programmes de récupération des données et d'analyse sont sur le compte d'
 
 dans le repertoire `TP`
 
+### Depot git
+https://forge.univ-lyon1.fr/p1711842/bda-tortoises-races
 ### Comment utiliser nos prgrammes
 
 - après la connection à la VM ci dessus, pous pouvez lancer les differentes programmes :
