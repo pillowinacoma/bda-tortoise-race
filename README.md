@@ -1,21 +1,6 @@
 # BDA-tortoises-races
 
-### Membres du groupe :
-
-- SBAAI Abdelaziz, p1807434
-- BOUGE Yoann, p1711842
-- BEVERAGGI Jean, p1809133
-- DAO AN HANH, p2110970
-
-Les programmes de récupération des données et d'analyse sont sur le compte d'Abdelaziz :
-
-> `ssh -i cle.ssh p1807434@192.168.76.161`
-
-dans le repertoire `TP`
-
-### Depot git
-https://forge.univ-lyon1.fr/p1711842/bda-tortoises-races
-### Comment utiliser nos prgrammes
+### Comment utiliser le programme
 
 - après la connection à la VM ci dessus, pous pouvez lancer les differentes programmes :
   - Récuperation des données :
